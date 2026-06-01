@@ -1,0 +1,7 @@
+core:
+  forum:
+    index_sort:
+      calendar_event_date_asc_button: 'Kommande händelser (Datumstigande)'
+      calendar_event_date_desc_button: 'Senaste händelser (Datumfallande)'
+      calendar_event_date_asc_label: 'Kommande händelser (Datumstigande)'
+      calendar_event_date_desc_label: 'Senaste händelser (Datumfallande)'
