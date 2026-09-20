@@ -9,14 +9,14 @@
  * file that was distributed with this source code.
  */
 
-namespace Redundans\Calendarevent;
-
+use redundans\Calendarevent\Console\FetchEventsCommand;
 use Flarum\Extend;
 use Flarum\Discussion\Discussion;
 use Flarum\Api\Resource\DiscussionResource;
 use Flarum\Api\Schema;
 use Flarum\Api\Sort\SortColumn; // Importera den nya sorteringsklassen för Flarum 2.0
 use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Console\Scheduling\Event;
 
 return [
     (new Extend\Frontend('forum'))
@@ -68,4 +68,14 @@ return [
     (new Extend\Settings())
         ->default('calendar-event-date.tag_id', '') // Sätter ett standardvärde
         ->serializeToForum('calendar-event-date.tag_id', 'calendar-event-date.tag_id'), // Skickar inställningen till frontenden
+
+    // Registrera kommandot
+
+
+    (new Extend\Console())
+        ->command(FetchEventsCommand::class)
+        ->schedule('noden:fetch-events', function (Event $event) {
+            $event->hourly();
+        })
+
 ];
