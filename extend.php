@@ -10,12 +10,16 @@
  */
 
 use redundans\Calendarevent\Console\FetchEventsCommand;
+use redundans\Calendarevent\Api\CalendarEventDateSort;
+use redundans\Calendarevent\Search\CalendarEventDateSortMutator;
 use Flarum\Extend;
+use Flarum\Discussion\Search\DiscussionSearcher;
+use Flarum\Search\Database\DatabaseSearchDriver;
 use Flarum\Discussion\Discussion;
 use Flarum\Api\Resource\DiscussionResource;
 use Flarum\Api\Schema;
-use Flarum\Api\Sort\SortColumn; // Importera den nya sorteringsklassen för Flarum 2.0
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\Tags\Tag;
 use Illuminate\Console\Scheduling\Event;
 
 return [
@@ -31,6 +35,10 @@ return [
                 }
             }
             $document->payload['calendarEventTags'] = json_encode($filteredTags);
+            $calendarTagId = $settings->get('calendar-event-date.tag_id', '');
+            $document->payload['calendarEventTagSlug'] = $calendarTagId
+                ? Tag::query()->whereKey($calendarTagId)->value('slug')
+                : null;
         }),
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')
@@ -61,8 +69,16 @@ return [
         ])
         // Rätt metod i Flarum 2.0 för att tillåta sortering via API:et
         ->sorts(fn () => [
-            SortColumn::make('calendarEventDate'),
+            new CalendarEventDateSort('calendarEventDate'),
+            (new CalendarEventDateSort('calendar_event_date'))
+                ->ascendingAlias('calendar_event_date_asc')
+                ->descendingAlias('calendar_event_date_desc'),
+            new CalendarEventDateSort('calendar_event_date_asc'),
+            new CalendarEventDateSort('calendar_event_date_desc'),
         ]),
+
+    (new Extend\SearchDriver(DatabaseSearchDriver::class))
+        ->addMutator(DiscussionSearcher::class, CalendarEventDateSortMutator::class),
 
     // Den korrekta metoden i Flarum för att hantera admin-inställningar
     (new Extend\Settings())
