@@ -12,6 +12,7 @@
 use redundans\Calendarevent\Console\FetchEventsCommand;
 use redundans\Calendarevent\Api\CalendarEventDateSort;
 use redundans\Calendarevent\Search\CalendarEventDateSortMutator;
+use redundans\Calendarevent\Search\HideUnansweredCalendarDiscussionsMutator;
 use Flarum\Extend;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Search\Database\DatabaseSearchDriver;
@@ -78,7 +79,8 @@ return [
         ]),
 
     (new Extend\SearchDriver(DatabaseSearchDriver::class))
-        ->addMutator(DiscussionSearcher::class, CalendarEventDateSortMutator::class),
+        ->addMutator(DiscussionSearcher::class, CalendarEventDateSortMutator::class)
+        ->addMutator(DiscussionSearcher::class, HideUnansweredCalendarDiscussionsMutator::class),
 
     // Den korrekta metoden i Flarum för att hantera admin-inställningar
     (new Extend\Settings())
