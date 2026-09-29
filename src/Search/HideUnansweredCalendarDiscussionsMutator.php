@@ -5,6 +5,7 @@ namespace redundans\Calendarevent\Search;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchCriteria;
 use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\Tags\Tag;
 
 class HideUnansweredCalendarDiscussionsMutator
 {
@@ -14,7 +15,7 @@ class HideUnansweredCalendarDiscussionsMutator
 
     public function __invoke(DatabaseSearchState $search, SearchCriteria $criteria): void
     {
-        $tagId = $this->settings->get('calendar-event-date.tag_id');
+        $tagId = $this->resolveCalendarTagId();
 
         if (! $tagId) {
             return;
@@ -40,5 +41,21 @@ class HideUnansweredCalendarDiscussionsMutator
                 })
                 ->orWhere('comment_count', '>', 1);
         });
+    }
+
+    /**
+     * There is no admin UI to set `calendar-event-date.tag_id`, so it is
+     * effectively never populated. Fall back to the "kalender" tag by slug,
+     * the same one the forum frontend assumes when the setting is absent.
+     */
+    private function resolveCalendarTagId(): ?int
+    {
+        $tagId = $this->settings->get('calendar-event-date.tag_id');
+
+        if ($tagId) {
+            return (int) $tagId;
+        }
+
+        return Tag::query()->where('slug', 'kalender')->value('id');
     }
 }
