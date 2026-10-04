@@ -27,8 +27,8 @@
             "category": "Feature",
             "icon": {
                 "name": "fas fa-calendar-alt",
-                "color": "#0073ff",
-                "backgroundColor": "#fff"
+                "color": "#222222",
+                "backgroundColor": "#fab005"
             }
         },
         "flarum-cli": {
